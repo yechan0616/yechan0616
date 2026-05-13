@@ -79,14 +79,14 @@ body {
   z-index: 1;
   width: min(340px, 100%);
   aspect-ratio: var(--card-width) / var(--card-height);
-  animation: card-rise 860ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: card-rise 1450ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
 }
 
 @keyframes card-rise {
   from {
     opacity: 0;
-    transform: translate3d(0, 92px, 0) scale(0.982);
+    transform: translate3d(0, 118px, 0) scale(0.982);
   }
 
   58% {
