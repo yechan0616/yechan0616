@@ -26,8 +26,14 @@ if (page && card) {
   let dragging = false;
   let startedOnContact = false;
   let readyTimer = 0;
+  let transitionLocked = false;
+  let transitionTimer = 0;
+  let wheelIntent = 0;
+  let wheelIntentTimer = 0;
 
   const DRAG_START_THRESHOLD = 10;
+  const WHEEL_INTENT_THRESHOLD = 56;
+  const TRANSITION_LOCK_MS = 2200;
   const clampDrag = (value) => {
     if (page.classList.contains('is-card-docked')) {
       return Math.min(Math.max(value, -260), 0);
@@ -46,8 +52,25 @@ if (page && card) {
     page.style.setProperty('--card-dock-y', `${Math.max(dockY, 0)}px`);
   }
 
-  function setDocked(nextDocked) {
-    updateDockOffset();
+  function setDocked(nextDocked, shouldMeasure = true) {
+    const isDocked = page.classList.contains('is-card-docked');
+
+    if (nextDocked === isDocked) {
+      return;
+    }
+
+    if (shouldMeasure) {
+      updateDockOffset();
+    }
+
+    transitionLocked = true;
+    wheelIntent = 0;
+    window.clearTimeout(wheelIntentTimer);
+    window.clearTimeout(transitionTimer);
+    transitionTimer = window.setTimeout(() => {
+      transitionLocked = false;
+      wheelIntent = 0;
+    }, TRANSITION_LOCK_MS);
 
     if (nextDocked) {
       page.classList.remove('is-card-undocking');
@@ -70,19 +93,26 @@ if (page && card) {
       return;
     }
 
-    page.classList.remove('is-card-dragging');
-    page.style.removeProperty('--card-drag-y');
     updateDockOffset();
+    const isDocked = page.classList.contains('is-card-docked');
+    let nextDocked = isDocked;
 
     if (dragging) {
-      if (page.classList.contains('is-card-docked')) {
+      if (isDocked) {
         if (currentY < -42) {
-          setDocked(false);
+          nextDocked = false;
         }
       } else if (currentY > 70) {
-        setDocked(true);
+        nextDocked = true;
       }
     }
+
+    if (nextDocked !== isDocked) {
+      setDocked(nextDocked, false);
+    }
+
+    page.classList.remove('is-card-dragging');
+    page.style.removeProperty('--card-drag-y');
 
     pointerActive = false;
     dragging = false;
@@ -137,11 +167,38 @@ if (page && card) {
       }
 
       event.preventDefault();
-      const isDocked = page.classList.contains('is-card-docked');
 
-      if (isDocked && event.deltaY < 0) {
+      if (transitionLocked || pointerActive) {
+        wheelIntent = 0;
+        window.clearTimeout(wheelIntentTimer);
+        return;
+      }
+
+      const isDocked = page.classList.contains('is-card-docked');
+      const allowedDirection =
+        (isDocked && event.deltaY < 0) || (!isDocked && event.deltaY > 0);
+
+      if (!allowedDirection) {
+        wheelIntent = 0;
+        return;
+      }
+
+      wheelIntent += event.deltaY;
+      window.clearTimeout(wheelIntentTimer);
+      wheelIntentTimer = window.setTimeout(() => {
+        wheelIntent = 0;
+      }, 180);
+
+      if (Math.abs(wheelIntent) < WHEEL_INTENT_THRESHOLD) {
+        return;
+      }
+
+      const intent = wheelIntent;
+      wheelIntent = 0;
+
+      if (isDocked && intent < 0) {
         setDocked(false);
-      } else if (!isDocked && event.deltaY > 0) {
+      } else if (!isDocked && intent > 0) {
         setDocked(true);
       }
     },
