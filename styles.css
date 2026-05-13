@@ -97,10 +97,10 @@ body {
 }
 
 .dock-hint {
-  position: absolute;
+  position: fixed;
   left: 50%;
   bottom: max(22px, env(safe-area-inset-bottom));
-  z-index: 1;
+  z-index: 2;
   margin: 0;
   padding: 0;
   color: rgb(255 255 255 / 0.76);
@@ -110,8 +110,8 @@ body {
   text-shadow: 0 1px 14px rgb(0 0 0 / 0.28);
   transform: translate3d(-50%, 0, 0);
   transition:
-    opacity 420ms ease,
-    transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 680ms ease 760ms,
+    transform 680ms cubic-bezier(0.16, 1, 0.3, 1) 760ms;
   pointer-events: none;
   white-space: nowrap;
 }
@@ -125,6 +125,9 @@ body {
 .page.is-card-dragging .dock-hint {
   opacity: 0;
   transform: translate3d(-50%, 8px, 0);
+  transition:
+    opacity 360ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .page.is-ready .card {
