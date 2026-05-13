@@ -79,6 +79,24 @@ body {
   z-index: 1;
   width: min(340px, 100%);
   aspect-ratio: var(--card-width) / var(--card-height);
+  animation: card-rise 860ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 92px, 0) scale(0.982);
+  }
+
+  58% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
 .card__shape {
@@ -207,5 +225,12 @@ button.contact {
 
   .contact {
     font-size: 14.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+    will-change: auto;
   }
 }
