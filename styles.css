@@ -49,9 +49,7 @@ body {
 
 body {
   color: var(--ink);
-  background:
-    linear-gradient(rgb(0 0 0 / var(--bg-dim)), rgb(0 0 0 / var(--bg-dim))),
-    url("./assets/guitar-background.jpeg") center / cover no-repeat fixed;
+  background: url("./assets/guitar-background.jpeg") center / cover no-repeat fixed;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -74,9 +72,13 @@ body {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--backdrop-tint);
+  background-color: rgb(0 0 0 / var(--bg-dim));
   backdrop-filter: blur(var(--backdrop-blur)) saturate(var(--backdrop-saturation));
   -webkit-backdrop-filter: blur(var(--backdrop-blur)) saturate(var(--backdrop-saturation));
+  transition:
+    background-color 980ms ease,
+    backdrop-filter 1180ms cubic-bezier(0.16, 1, 0.3, 1),
+    -webkit-backdrop-filter 1180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card {
@@ -86,7 +88,47 @@ body {
   width: min(340px, 100%, calc((100dvh - 80px) * var(--card-width) / var(--card-height)));
   aspect-ratio: var(--card-width) / var(--card-height);
   animation: card-rise 2600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  cursor: grab;
+  touch-action: none;
+  transition:
+    transform 1180ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 520ms ease;
   will-change: transform, opacity;
+}
+
+.page.is-ready .card {
+  animation: none;
+}
+
+.page.is-card-dragging .card {
+  animation: none;
+  cursor: grabbing;
+  opacity: 1;
+  transform: translate3d(0, var(--card-drag-y, 0px), 0) scale(1);
+  transition: none;
+}
+
+.page.is-card-docked .card {
+  animation: none;
+  opacity: 1;
+  transform: translate3d(0, var(--card-dock-y, 0px), 0) scale(1);
+}
+
+.page.is-card-undocking .card {
+  transition:
+    transform 1450ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 520ms ease;
+}
+
+.page.is-card-docked.is-card-dragging .card {
+  transform: translate3d(0, calc(var(--card-dock-y, 0px) + var(--card-drag-y, 0px)), 0)
+    scale(1);
+}
+
+.page.is-card-docked::before {
+  background-color: rgb(0 0 0 / 0);
+  backdrop-filter: blur(0) saturate(1);
+  -webkit-backdrop-filter: blur(0) saturate(1);
 }
 
 @keyframes card-rise {
@@ -217,6 +259,15 @@ button.contact {
   .card {
     width: min(340px, 100%, calc((100dvh - 56px) * var(--card-width) / var(--card-height)));
   }
+
+  .page.is-card-docked .card {
+    transform: translate3d(0, var(--card-dock-y, 0px), 0) scale(1);
+  }
+
+  .page.is-card-docked.is-card-dragging .card {
+    transform: translate3d(0, calc(var(--card-dock-y, 0px) + var(--card-drag-y, 0px)), 0)
+      scale(1);
+  }
 }
 
 @media (max-width: 340px) {
@@ -241,6 +292,7 @@ button.contact {
 @media (prefers-reduced-motion: reduce) {
   .card {
     animation: none;
+    transition: none;
     will-change: auto;
   }
 }
