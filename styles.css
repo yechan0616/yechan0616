@@ -85,7 +85,7 @@ body {
   z-index: 1;
   width: min(340px, 100%, calc((100dvh - 80px) * var(--card-width) / var(--card-height)));
   aspect-ratio: var(--card-width) / var(--card-height);
-  animation: card-rise 1450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: card-rise 2600ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
 }
 
